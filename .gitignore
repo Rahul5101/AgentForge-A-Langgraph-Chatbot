@@ -5,14 +5,8 @@ __pycache__/
 
 agent-starter-react
 
-# Chainlit
-.chainlit
 
-# Gradio
-.gradio
 
-# C extensions
-*.so
 
 # Chainlit
 /.chainlit/
