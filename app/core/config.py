@@ -22,7 +22,11 @@ class Settings(BaseSettings):
     LIVEKIT_API_KEY: str = "********"
     LIVEKIT_API_SECRET: str = "********"
 
-    OPENAI_API_KEY: str = "********"
+    GEMINI_API_KEY: str = "********"
+
+    @property
+    def GOOGLE_API_KEY(self) -> str:
+        return self.GEMINI_API_KEY
 
     STT_API_URL: str = "http://10.1.2.94:8000/v1/"
     LLM_API_URL: str = "http://10.1.2.94:11434/v1/"

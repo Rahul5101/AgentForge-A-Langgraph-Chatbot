@@ -14,7 +14,7 @@ from livekit.agents import (
     cli
 )
 
-from livekit.plugins import noise_cancellation, silero, deepgram, cartesia, openai
+from livekit.plugins import noise_cancellation, silero, deepgram, cartesia, google
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
 from app.utils.logger import setup_logger
 
@@ -40,7 +40,7 @@ class Assistant(Agent):
 async def entrypoint(ctx: JobContext):
     session = AgentSession(
         stt=deepgram.STT(model="nova-3", language="multi"),
-        llm=openai.LLM(model="gpt-4o-mini"),
+        llm=google.LLM(model="gemini-2.5-flash"),
         tts=cartesia.TTS(model="sonic-2", voice="f786b574-daa5-4673-aa0c-cbe3e8534c02"),
         vad=silero.VAD.load(),
         turn_detection=MultilingualModel(),
@@ -53,14 +53,6 @@ async def entrypoint(ctx: JobContext):
             # LiveKit Cloud enhanced noise cancellation
             # - If self-hosting, omit this parameter
             # - For telephony applications, use `BVCTelephony` for best results
-            noise_cancellation=noise_cancellation.BVC(),
-        ),
-    )
-
-    await session.start(
-        room=ctx.room,
-        agent=Assistant(),
-        room_input_options=RoomInputOptions(
             noise_cancellation=noise_cancellation.BVC(),
         ),
     )

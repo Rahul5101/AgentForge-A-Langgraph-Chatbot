@@ -24,7 +24,7 @@ class AISupport:
 
     def __init__(self, vector_store: MultiTenantVectorStore):
         """
-        Initialize the AI Support with Memory Configuration and Langchain OpenAI Chat Model.
+        Initialize the AI Support with Memory Configuration and Langchain Gemini Chat Model.
         """
         if not hasattr(self, '_initialized') or not self._initialized:
             self._initialized = True
@@ -67,20 +67,20 @@ class AISupport:
 
         config = {
             "llm": {
-                "provider": "openai",
+                "provider": "gemini",
                 "config": {
-                    "model": "gpt-4.1-mini",
+                    "model": "gemini-2.5-flash",
                     "temperature": 0.1,
                     "max_tokens": 2000,
-                    "api_key": settings.OPENAI_API_KEY
+                    "api_key": settings.GEMINI_API_KEY
                 }
             },
             "embedder": {
-                "provider": "openai",
+                "provider": "gemini",
                 "config": {
-                    "model": "text-embedding-3-small",
+                    "model": "models/text-embedding-004",
                     "embedding_dims": 768,
-                    "api_key": settings.OPENAI_API_KEY
+                    "api_key": settings.GEMINI_API_KEY
                 }
             },
             "vector_store": {
