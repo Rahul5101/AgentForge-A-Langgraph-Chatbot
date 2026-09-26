@@ -15,14 +15,17 @@ alembic==1.16.2
 aiosqlite==0.21.0
 
 # Voice agent
-langchain-google-genai==2.0.10
+langchain-google-genai>=2.0.11
+langchain-google-vertexai>=3.0.0
+google-cloud-aiplatform>=1.65.0
 langchain-qdrant==0.2.0
 langgraph==0.3.2
 livekit-agents[deepgram,google,cartesia,silero,turn-detector]==1.1.1
 livekit-plugins-noise-cancellation==0.2.4
 livekit-api==1.0.2
 langchain-core~=0.3.65
-google-genai>=0.1.0
+google-genai>=2.25.0
+google-auth>=2.25.0
 torch==2.7.1
 
 # MCP
@@ -35,4 +38,4 @@ tavily-python==0.7.8
 firecrawl-py==2.9.0
 
 # MEM0
-mem0ai==0.1.107
+mem0ai>=2.2.0

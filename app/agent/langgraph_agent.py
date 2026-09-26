@@ -3,7 +3,7 @@ from typing import Annotated, TypedDict, Literal, Sequence, List, Required, Opti
 
 from langchain_core.messages import BaseMessage, AIMessage, SystemMessage
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_google_vertexai import ChatVertexAI
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import END, StateGraph, START
 from langgraph.graph.state import CompiledStateGraph
@@ -203,7 +203,12 @@ async def supervisor_agent(state: AgentState) -> Dict:
         ),
     ]).partial(options=str(options), members=", ".join(members))
 
-    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0, google_api_key=settings.GEMINI_API_KEY)
+    llm_kwargs = {}
+    if settings.GOOGLE_CLOUD_PROJECT:
+        llm_kwargs["project"] = settings.GOOGLE_CLOUD_PROJECT
+    if settings.GOOGLE_CLOUD_REGION:
+        llm_kwargs["location"] = settings.GOOGLE_CLOUD_REGION
+    llm = ChatVertexAI(model_name="gemini-1.5-flash", temperature=0, **llm_kwargs)
     supervisor_chain = prompt | llm.with_structured_output(RouteResponse)
     result = await supervisor_chain.ainvoke(state)
 
@@ -231,7 +236,12 @@ async def supervisor_agent(state: AgentState) -> Dict:
 
 async def create_graph():
     """Create the multi-agent workflow graph."""
-    llm = ChatGoogleGenerativeAI(model="gemini-2.5-flash", temperature=0, google_api_key=settings.GEMINI_API_KEY)
+    llm_kwargs = {}
+    if settings.GOOGLE_CLOUD_PROJECT:
+        llm_kwargs["project"] = settings.GOOGLE_CLOUD_PROJECT
+    if settings.GOOGLE_CLOUD_REGION:
+        llm_kwargs["location"] = settings.GOOGLE_CLOUD_REGION
+    llm = ChatVertexAI(model_name="gemini-1.5-flash", temperature=0, **llm_kwargs)
 
     await _mcp_tools.setup_mcp_tools()
 

@@ -2,7 +2,7 @@ from typing import List, Dict, Any, Optional
 
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_google_vertexai import VertexAIEmbeddings
 from qdrant_client import QdrantClient, models
 from langchain_qdrant import QdrantVectorStore
 
@@ -30,19 +30,26 @@ class MultiTenantVectorStore:
     def __init__(
         self,
         collection_name: str = "multi_tenant_chat_history",
-        embedding: Optional[Embeddings] = GoogleGenerativeAIEmbeddings(
-            model="models/text-embedding-004",
-            google_api_key=settings.GEMINI_API_KEY
-        ),
+        embedding: Optional[Embeddings] = None,
     ):
         """Initialize the multi-tenant vector store.
         
         Args:
             collection_name: Name of the Qdrant collection to use
-            embedding: LangChain embedding model to use (default to Google Gemini embeddings)
+            embedding: LangChain embedding model to use (default to Vertex AI embeddings)
         """
         if self._initialized:
             return
+        if embedding is None:
+            kwargs = {}
+            if settings.GOOGLE_CLOUD_PROJECT:
+                kwargs["project"] = settings.GOOGLE_CLOUD_PROJECT
+            if settings.GOOGLE_CLOUD_REGION:
+                kwargs["location"] = settings.GOOGLE_CLOUD_REGION
+            embedding = VertexAIEmbeddings(
+                model_name="text-embedding-004",
+                **kwargs
+            )
         self.client = QdrantClient(settings.QDRANT_HOST, port=settings.QDRANT_PORT)
         self.collection_name = collection_name
         self.embedding_size = 768

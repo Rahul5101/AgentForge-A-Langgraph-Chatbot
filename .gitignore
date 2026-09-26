@@ -5,7 +5,9 @@ __pycache__/
 
 agent-starter-react
 
-
+service_account.json
+.env
+.env.example
 
 
 # Chainlit

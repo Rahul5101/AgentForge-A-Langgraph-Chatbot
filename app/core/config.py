@@ -1,7 +1,16 @@
+import os
+import shutil
 from typing import List
 
-from pydantic import field_validator
+from dotenv import load_dotenv
+from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings
+
+if not os.path.exists(".env") and os.path.exists(".env.example"):
+    shutil.copy(".env.example", ".env")
+
+load_dotenv(".env")
+load_dotenv(".env.example")
 
 
 class Settings(BaseSettings):
@@ -22,11 +31,46 @@ class Settings(BaseSettings):
     LIVEKIT_API_KEY: str = "********"
     LIVEKIT_API_SECRET: str = "********"
 
-    GEMINI_API_KEY: str = "********"
+    GEMINI_API_KEY: str = ""
+    GOOGLE_API_KEY: str = ""
+    GOOGLE_CLOUD_PROJECT: str = "agentforge-509705"
+    GOOGLE_CLOUD_REGION: str = "us-central1"
+    GOOGLE_APPLICATION_CREDENTIALS: str = "service_account.json"
 
-    @property
-    def GOOGLE_API_KEY(self) -> str:
-        return self.GEMINI_API_KEY
+    @model_validator(mode="after")
+    def sync_google_keys(self) -> "Settings":
+        placeholders = {"********", "your_gemini_api_key", "your_api_key", ""}
+        
+        key = ""
+        for candidate in [
+            self.GEMINI_API_KEY,
+            self.GOOGLE_API_KEY,
+            os.getenv("GEMINI_API_KEY", ""),
+            os.getenv("GOOGLE_API_KEY", "")
+        ]:
+            if candidate and candidate not in placeholders:
+                key = candidate
+                break
+
+        if key:
+            self.GEMINI_API_KEY = key
+            self.GOOGLE_API_KEY = key
+            os.environ["GEMINI_API_KEY"] = key
+            os.environ["GOOGLE_API_KEY"] = key
+
+        if self.GOOGLE_CLOUD_PROJECT:
+            os.environ["GOOGLE_CLOUD_PROJECT"] = self.GOOGLE_CLOUD_PROJECT
+        if self.GOOGLE_CLOUD_REGION:
+            os.environ["GOOGLE_CLOUD_REGION"] = self.GOOGLE_CLOUD_REGION
+
+        if self.GOOGLE_APPLICATION_CREDENTIALS and os.path.exists(self.GOOGLE_APPLICATION_CREDENTIALS):
+            abs_credentials_path = os.path.abspath(self.GOOGLE_APPLICATION_CREDENTIALS)
+            os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = abs_credentials_path
+
+        if self.QDRANT_HOST in ["your_host", "your_host_here", ""]:
+            self.QDRANT_HOST = "localhost"
+
+        return self
 
     STT_API_URL: str = "http://10.1.2.94:8000/v1/"
     LLM_API_URL: str = "http://10.1.2.94:11434/v1/"
@@ -40,9 +84,9 @@ class Settings(BaseSettings):
     SQLALCHEMY_DATABASE_URI: str = "sqlite:///./app.db"
 
     LANGCHAIN_TRACING_V2: bool = 'true'
-    LANGSMITH_ENDPOINT: str = "https: // api.smith.langchain.com"
-    LANGSMITH_API_KEY: str= "********"
-    LANGSMITH_PROJECT: str = "pr-only-surround-27"
+    LANGSMITH_ENDPOINT: str = "https://api.smith.langchain.com"
+    LANGSMITH_API_KEY: str = "********"
+    LANGSMITH_PROJECT: str = "agentforge"
 
     QDRANT_PORT: int = 6333
     QDRANT_HOST: str = "localhost"
@@ -51,7 +95,7 @@ class Settings(BaseSettings):
     FIRECRAWL_API_KEY: str = "********"
 
     class Config:
-        env_file = ".env"
+        env_file = (".env", ".env.example")
         env_file_encoding = "utf-8"
         case_sensitive = True
         extra = "ignore"

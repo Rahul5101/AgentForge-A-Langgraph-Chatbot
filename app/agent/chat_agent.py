@@ -76,11 +76,10 @@ class AISupport:
                 }
             },
             "embedder": {
-                "provider": "gemini",
+                "provider": "vertexai",
                 "config": {
-                    "model": "models/text-embedding-004",
-                    "embedding_dims": 768,
-                    "api_key": settings.GEMINI_API_KEY
+                    "model": "text-embedding-004",
+                    "embedding_dims": 768
                 }
             },
             "vector_store": {
@@ -203,5 +202,8 @@ class AISupport:
         self.__memory.add(f"User: {question}\nAssistant: {response}", user_id=user_id, metadata={"app_id": self.__app_id})
 
     async def __search_memory(self, query, user_id=None):
-        related_memories = self.__memory.search(query, user_id=user_id)
+        related_memories = self.__memory.search(
+            query, 
+            filters={"user_id": user_id}
+        )        
         return related_memories

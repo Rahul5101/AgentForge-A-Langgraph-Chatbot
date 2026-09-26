@@ -19,6 +19,10 @@ load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    placeholders = {"your_gemini_api_key", "your_api_key", "********", ""}
+    if not settings.GEMINI_API_KEY or settings.GEMINI_API_KEY in placeholders:
+        logger.error("CRITICAL ERROR: GEMINI_API_KEY is missing or using placeholder in .env! Open .env and replace 'your_gemini_api_key' with your actual Google Gemini API key.")
+
     await initialize_graph()
     async with async_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
