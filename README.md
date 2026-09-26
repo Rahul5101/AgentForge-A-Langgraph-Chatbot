@@ -20,9 +20,6 @@ The easiest way to run the entire stack is using Docker Compose:
    docker-compose up --build
    ```
 
-- **Frontend UI**: http://localhost:3000
-- **Backend API Docs**: http://localhost:8000/docs
-- **Qdrant Dashboard**: http://localhost:6333/dashboard
 
 ---
 
